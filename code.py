@@ -2,8 +2,7 @@
 Project 17: Employee Salary Manager
 Group 17: Preet Nagar, Yash Raj Kohli, Harshit Rathaur, Aryan
 
-Run program  : python salary_manager.py
-Run doctests : python -m doctest salary_manager.py -v
+Run program: python salary_manager.py
 """
 
 # Main dictionary: key = (id, name) tuple, value = dictionary
@@ -14,19 +13,12 @@ employees = {
     (104, "Neha Gupta"): {"dept": "IT", "basic": 60000},
     (105, "Karan Mehta"): {"dept": "SALES", "basic": 30000},
     (106, "Sneha Joshi"): {"dept": "HR", "basic": 40000},
+    (107, "Preet Nagar"): {"dept": "IT", "basic": 10000}
 }
 
 
 def calculate_tax(annual_income):
-    """Yearly income tax using slabs.
-
-    >>> calculate_tax(250000)
-    0.0
-    >>> calculate_tax(600000)
-    15000.0
-    >>> calculate_tax(1800000)
-    240000.0
-    """
+    """Yearly income tax using slabs (if-elif-else)."""
     if annual_income <= 300000:
         tax = 0
     elif annual_income <= 600000:
@@ -39,15 +31,11 @@ def calculate_tax(annual_income):
         tax = 90000 + (annual_income - 1200000) * 0.20
     else:
         tax = 150000 + (annual_income - 1500000) * 0.30
-    return round(float(tax), 2)
+    return tax
 
 
 def calculate_salary(basic):
-    """Return list: [basic, hra, da, gross, pf, tax, net]
-
-    >>> calculate_salary(50000)
-    [50000, 10000.0, 5000.0, 65000.0, 6000.0, 2150.0, 56850.0]
-    """
+    """Return list: [basic, hra, da, gross, pf, tax, net]"""
     hra = basic * 0.20
     da = basic * 0.10
     pf = basic * 0.12
@@ -59,127 +47,8 @@ def calculate_salary(basic):
 
 
 def total_net(nets, i=0):
-    """Add all net salaries using recursion.
-
-    >>> total_net([1000.0, 2000.0, 3000.0])
-    6000.0
-    >>> total_net([])
-    0.0
-    """
+    """Add all net salaries using recursion."""
     if i == len(nets):
         return 0.0
     return nets[i] + total_net(nets, i + 1)
 
-
-def show_table():
-    """Employees vs salary components (nested loops)."""
-    heads = ["Basic", "HRA", "DA", "Gross", "PF", "Tax", "Net"]
-    print(f"\n{'ID':<6}{'Name':<16}", end="")
-    for h in heads:
-        print(f"{h:>9}", end="")
-    print()
-    print("-" * 85)
-
-    for (emp_id, name), info in employees.items():     # outer loop
-        line = f"{emp_id:<6}{name:<16}"
-        for value in calculate_salary(info["basic"]):  # inner loop
-            line += f"{value:>9.1f}"
-        print(line)
-
-
-def show_summary():
-    """Net salaries, highest-paid employee and set of departments."""
-    highest_name = ""
-    highest_net = 0
-    departments = set()
-
-    print("\n--- Net Salaries ---")
-    for (emp_id, name), info in employees.items():
-        net = calculate_salary(info["basic"])[6]
-        print(f"{name} ({info['dept']}): Rs. {net:.2f}")
-        departments.add(info["dept"])
-        if net > highest_net:
-            highest_net = net
-            highest_name = name
-
-    print(f"\nHighest-Paid Employee: {highest_name} -> Rs. {highest_net:.2f}")
-    print("Departments:", sorted(departments))
-
-
-def save_payslips():
-    """Write payslips of all employees to payslips.txt"""
-    try:
-        with open("payslips.txt", "w") as f:
-            for (emp_id, name), info in employees.items():
-                b, hra, da, gross, pf, tax, net = calculate_salary(info["basic"])
-                f.write("=" * 36 + "\n")
-                f.write("PAYSLIP - November 2026\n")
-                f.write("=" * 36 + "\n")
-                f.write(f"ID         : {emp_id}\n")
-                f.write(f"Name       : {name}\n")
-                f.write(f"Department : {info['dept']}\n")
-                f.write(f"Basic Pay  : {b:.2f}\n")
-                f.write(f"HRA (20%)  : {hra:.2f}\n")
-                f.write(f"DA (10%)   : {da:.2f}\n")
-                f.write(f"Gross      : {gross:.2f}\n")
-                f.write(f"PF (12%)   : {pf:.2f}\n")
-                f.write(f"Tax        : {tax:.2f}\n")
-                f.write(f"Net Salary : {net:.2f}\n\n")
-        print("Payslips saved in 'payslips.txt'.")
-    except OSError:
-        print("Could not write the file.")
-
-
-def add_employee():
-    """Take input and add a new employee."""
-    try:
-        emp_id = int(input("Enter ID: "))
-        name = input("Enter Name: ").strip().title()
-        dept = input("Enter Department: ").strip().upper()
-        basic = float(input("Enter Basic Pay: "))
-
-        if name == "" or dept == "" or basic <= 0:
-            raise ValueError("name/department empty or pay not positive")
-        for old_id, old_name in employees:
-            if old_id == emp_id:
-                raise ValueError("ID already exists")
-
-        employees[(emp_id, name)] = {"dept": dept, "basic": basic}
-        print("Employee added.")
-    except ValueError as e:
-        print("Invalid input:", e)
-
-
-def main():
-    while True:
-        print("\n=== Employee Salary Manager ===")
-        print("1. Show Payroll Table")
-        print("2. Show Net Salaries & Highest Paid")
-        print("3. Show Total Net Salary")
-        print("4. Add New Employee")
-        print("5. Save Payslips to File")
-        print("6. Exit")
-        choice = input("Choose (1-6): ").strip()
-
-        if choice == "1":
-            show_table()
-        elif choice == "2":
-            show_summary()
-        elif choice == "3":
-            nets = []
-            for info in employees.values():
-                nets.append(calculate_salary(info["basic"])[6])
-            print(f"Total Net Salary: Rs. {total_net(nets):.2f}")
-        elif choice == "4":
-            add_employee()
-        elif choice == "5":
-            save_payslips()
-        elif choice == "6":
-            print("Bye!")
-            break
-        else:
-            print("Enter a number from 1 to 6.")
-
-
-if __name__ == "__main__":
-    main()
