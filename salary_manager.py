@@ -52,3 +52,89 @@ def total_net(nets, i=0):
         return 0.0
     return nets[i] + total_net(nets, i + 1)
 
+def show_table():
+    """Employees vs salary components (nested loops)."""
+    heads = ["Basic", "HRA", "DA", "Gross", "PF", "Tax", "Net"]
+    print(f"\n{'ID':<6}{'Name':<16}", end="")
+    for h in heads:
+        print(f"{h:>9}", end="")
+    print()
+    print("-" * 85)
+
+    for (emp_id, name), info in employees.items():     # outer loop
+        line = f"{emp_id:<6}{name:<16}"
+        for value in calculate_salary(info["basic"]):  # inner loop
+            line += f"{value:>9.1f}"
+        print(line)
+
+
+def show_summary():
+    """Net salaries, highest-paid employee and set of departments."""
+    highest_name = ""
+    highest_net = 0
+    departments = set()
+
+    print("\n--- Net Salaries ---")
+    for (emp_id, name), info in employees.items():
+        net = calculate_salary(info["basic"])[6]
+        print(f"{name} ({info['dept']}): Rs. {net:.2f}")
+        departments.add(info["dept"])
+        if net > highest_net:
+            highest_net = net
+            highest_name = name
+
+    print(f"\nHighest-Paid Employee: {highest_name} -> Rs. {highest_net:.2f}")
+    print("Departments:", sorted(departments))
+
+
+def save_payslips():
+    """Write payslips of all employees to payslips.txt"""
+    try:
+        with open("payslips.txt", "w") as f:
+            for (emp_id, name), info in employees.items():
+                b, hra, da, gross, pf, tax, net = calculate_salary(info["basic"])
+                f.write("=" * 36 + "\n")
+                f.write("PAYSLIP - November 2026\n")
+                f.write("=" * 36 + "\n")
+                f.write(f"ID         : {emp_id}\n")
+                f.write(f"Name       : {name}\n")
+                f.write(f"Department : {info['dept']}\n")
+                f.write(f"Basic Pay  : {b:.2f}\n")
+                f.write(f"HRA (20%)  : {hra:.2f}\n")
+                f.write(f"DA (10%)   : {da:.2f}\n")
+                f.write(f"Gross      : {gross:.2f}\n")
+                f.write(f"PF (12%)   : {pf:.2f}\n")
+                f.write(f"Tax        : {tax:.2f}\n")
+                f.write(f"Net Salary : {net:.2f}\n\n")
+        print("Payslips saved in 'payslips.txt'.")
+    except OSError:
+        print("Could not write the file.")
+
+
+# ---------------- Menu (program starts here) ----------------
+while True:
+    print("\n=== Employee Salary Manager ===")
+    print("1. Show Payroll Table")
+    print("2. Show Net Salaries & Highest Paid")
+    print("3. Show Total Net Salary")
+    print("4. Save Payslips to File")
+    print("5. Exit")
+    choice = input("Choose (1-5): ").strip()
+
+    if choice == "1":
+        show_table()
+    elif choice == "2":
+        show_summary()
+    elif choice == "3":
+        nets = []
+        for info in employees.values():
+            nets.append(calculate_salary(info["basic"])[6])
+        print(f"Total Net Salary: Rs. {total_net(nets):.2f}")
+    elif choice == "4":
+        save_payslips()
+    elif choice == "5":
+        print("Bye!")
+        break
+    else:
+        print("Enter a number from 1 to 5.")
+
