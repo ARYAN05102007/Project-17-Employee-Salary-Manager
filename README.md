@@ -180,4 +180,4 @@ Net Salary : 56850.00
 - The income tax slabs are sample slabs. They can be changed in `calculate_tax()`.
 - The pay month on the payslips ("November 2026") is typed inside `save_payslips()`.
 - Choosing option 4 again overwrites the old `payslips.txt` file.
--
+
